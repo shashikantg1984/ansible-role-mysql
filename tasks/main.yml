@@ -1,0 +1,47 @@
+
+    - name: Install MySQL database
+      yum:
+        name: ['mysql-server', 'mysql-devel']
+        state: present
+
+    - name: create MySQL configuration file
+      copy:
+        content: |
+          [client]
+          user=root
+          password="{{ db_password }}"
+        dest: "/etc/.my.cnf"
+
+    - name: Start MySQL Service
+      service:
+        name: mysqld
+        state: started
+        enabled: yes
+
+    - name: Install mysql-python package
+      yum:
+        name: MySQL-python
+        state: present
+
+    - name: Install pip
+      yum:
+        name: "python-pip"
+        state: present
+
+    - name: Install required Python libraries
+      pip:
+        name: ['flask', 'flask-mysql']
+        state: present
+
+    - name: Create Application Database
+      mysql_db:
+        name: "{{ db_name }}"
+        state: present
+
+    - name: Create Database user
+      mysql_user:
+        name: "{{ db_user }}"
+        password: "{{ db_password }}"
+        priv: '*.*:ALL'
+        state: present
+
